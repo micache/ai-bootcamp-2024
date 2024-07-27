@@ -117,7 +117,7 @@ class SparseVectorStore(BaseVectorStore):
         # Calculate the inverse document frequency for a word
         # HINT: Use the formula provided in the BM25 algorithm and np.log()
         "Your code here"
-        idf_score = None
+        idf_score = np.log(1 + (corpus_size - doc_count + 0.5) / (doc_count + 0.5))
         return idf_score
 
     def _tokenize_text(self, corpus: List[str] | str):
@@ -132,6 +132,8 @@ class SparseVectorStore(BaseVectorStore):
         """Add nodes to index."""
         for node in nodes:
             self.node_dict[node.id_] = node
+        
+        self.node_list = list(self.node_dict.values())
         self._update_csv()  # Update CSV after adding nodes
 
         # Reinitialize BM25 assets after adding new nodes
@@ -150,12 +152,28 @@ class SparseVectorStore(BaseVectorStore):
     def get_scores(self, query: str):
         score = np.zeros(self.corpus_size)
         tokenized_query = self._tokenize_text(query)
+
+        # Calculate the document frequency for each term in the query
+        query_term_doc_freqs = {term: 0 for term in tokenized_query}
+        for term in query_term_doc_freqs:
+            for doc_freq in self.doc_freqs:
+                if term in doc_freq:
+                    query_term_doc_freqs[term] += 1
+
         for q in tokenized_query:
-            # calulate the score for each token in the query
-            # HINT: use self.doc_freqs, self.idf, self.corpus_size, self.avgdl
-            "Your code here"
-            cur_score = None
-            score += cur_score
+            if q in query_term_doc_freqs:
+                doc_count = query_term_doc_freqs[q]
+                idf = self._calculate_idf(doc_count, self.corpus_size)
+                for i, doc_freq in enumerate(self.doc_freqs):
+                    if q in doc_freq:
+                        term_freq = doc_freq[q]
+                        doc_len = self.doc_len[i]
+                        avgdl = self.avgdl
+                        k1 = self.k1
+                        b = self.b
+                        score[i] += idf * ((term_freq * (k1 + 1)) /
+                                        (term_freq + k1 * (1 - b + b * (doc_len / avgdl))))
+                        
         return score
 
     def query(self, query: str, top_k: int = 3) -> VectorStoreQueryResult:

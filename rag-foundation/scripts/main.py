@@ -108,7 +108,7 @@ class RAGPipeline:
 
 
 def main(
-    data_path: Path = Path("data/qasper-test-v0.3.json"),
+    data_path: Path = Path("qasper-test-v0.3.json"),
     output_path: Path = Path("predictions.jsonl"),
     mode: str = "sparse",
     force_index: bool = False,
