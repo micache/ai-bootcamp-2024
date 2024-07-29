@@ -77,12 +77,12 @@ class RAGPipeline:
         self.model = None
 
         # GROQ
-        # from langchain_groq import ChatGroq
-        # self.model = ChatGroq(model="llama3-70b-8192", temperature=0)
+        from langchain_groq import ChatGroq
+        self.model = ChatGroq(model="llama3-70b-8192", temperature=0)
 
         # OpenAI
-        # from langchain_openai import ChatOpenAI
-        # self.model = ChatOpenAI(model="gpt-3.5-turbo", temperature=0)
+        #from langchain_openai import ChatOpenAI
+        #self.model = ChatOpenAI(model="gpt-3.5-turbo", temperature=0)
 
     def retrieve(self, query: str, top_k: int = 5) -> VectorStoreQueryResult:
         query_result = self.vector_store.query(query, top_k=top_k)
